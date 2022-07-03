@@ -1,18 +1,18 @@
 import sys
 import socket
+import os
 
 
-def conn(IP:str, port:int, buf:int, filename:str):
+def conn(*args, **kwargs):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((IP, port))
+    sock.connect((args[0], args[1]))
 
     def process_req(buf, file_name):
 
         mssg = sock.recv(1024).decode('utf-8')
         print(mssg)
-
-        __import__('os').listdir(__import__('os').getcwd())
+        os.walk(os.getcwd(), topdown= False)
 
         script = input('Provide filename of python script to use. ')
         with open(script, 'rb') as f:
@@ -23,18 +23,14 @@ def conn(IP:str, port:int, buf:int, filename:str):
                 raw_byte = sock.recv(buf)
                 file = __import__('io').BytesIO(raw_byte)
 
-                f.write(file)
+                f.write(file.read())
 
-    process_req(buf, filename)
+    process_req(args[2], args[3])
 
 try:
    PP = sys.argv[1]
 except IndexError:
    PP = 9696
 
-conn_args = []
-
-conn_args[0] = '127.0.0.1'
-conn_args[1] = PP
-conn_args[2] = 2048
-conn_args[3] = 'refactor.py'
+IP = '127.0.0.1'; BUF = 2048; FILE = 'refactor.py'
+conn(IP, PP, BUF, FILE)
