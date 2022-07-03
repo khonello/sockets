@@ -1,17 +1,40 @@
 import sys
 import socket
-import logging
 
-fmt = '%(levelname)s :: %(asctime)s :: %(message)s'
-logging.basicConfig(format= fmt, level= logging.DEBUG, filename= 'log.txt', filemode= 'a')
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('127.0.0.1', 9595))
+def conn(IP:str, port:int, buf:int, filename:str):
 
-mssg = sock.recv(1024)
-logging.info(mssg.decode('utf-8'))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((IP, port))
 
-print(mssg.decode('utf-8'))
+    def process_req(buf, file_name):
 
-newMssg = input('Enter command to close connection. ').encode('utf-8')
-sock.send(newMssg)
+        mssg = sock.recv(1024).decode('utf-8')
+        print(mssg)
+
+        __import__('os').listdir(__import__('os').getcwd())
+
+        script = input('Provide filename of python script to use. ')
+        with open(script, 'rb') as f:
+            sock.send(f.read())
+        
+        with open(file_name, 'wb') as f:
+            if f.writable():
+                raw_byte = sock.recv(buf)
+                file = __import__('io').BytesIO(raw_byte)
+
+                f.write(file)
+
+    process_req(buf, filename)
+
+try:
+   PP = sys.argv[1]
+except IndexError:
+   PP = 9696
+
+conn_args = []
+
+conn_args[0] = '127.0.0.1'
+conn_args[1] = PP
+conn_args[2] = 2048
+conn_args[3] = 'refactor.py'
