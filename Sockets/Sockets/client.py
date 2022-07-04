@@ -1,7 +1,6 @@
 import sys
 import socket
 import os
-import pathlib
 
 def conn(*args, **kwargs):
 
@@ -39,7 +38,7 @@ def conn(*args, **kwargs):
     process_req(args[2], args[3])
 
 try:
-   PP = sys.argv[1]
+   PP = int(sys.argv[1])
 except IndexError:
    PP = 9696
 

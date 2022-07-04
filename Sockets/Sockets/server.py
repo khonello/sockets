@@ -39,9 +39,9 @@ def create_sock(IP:str, port:int, conn:int):
 
 def process_req(buf, tmp_folder, tmp_file):
     try:
-        os.mkdir(tmp_folder)
 
-    except FileExistsError:
+        os.makedirs(tmp_folder)
+    except OSError:
 
         while socksQ.not_empty:
 
@@ -61,7 +61,7 @@ def process_req(buf, tmp_folder, tmp_file):
                     f.write(file.read())
 
                     err_path = path.joinpath('err.log'); out_path = path.joinpath('out.log')
-                    err = open(err_path); out = open(out_path)
+                    err = open(err_path, 'w+'); out = open(out_path, 'w+')
 
                     subprocess.Popen(['black', tmp_file_path], stderr= err, stdout= out); subprocess.Popen(['pylint', tmp_file_path], stderr= err, stdout= out)
                     if err.closed and out.closed:
@@ -73,7 +73,9 @@ def process_req(buf, tmp_folder, tmp_file):
                 tarfile.open('package.tar', 'x').add(path)
 
             except FileExistsError:
+
                 print('Tar file already exists')
+
 
             tar_path = pathlib.Path(os.getcwd()).joinpath('package.tar') 
 
@@ -94,8 +96,9 @@ create_sock_args = ['127.0.0.1', PP, 4]
 process_req_args = [2048, 'package-folder', 're-factored.py']
 
 
-th1 = threading.Thread(target= create_sock, args= create_sock_args)
+th1 = threading.Thread(target= create_sock, args= create_sock_args, daemon= True)
 th2 = threading.Thread(target= process_req, args= process_req_args)
+
 
 th1.start()
 th2.start()
