@@ -5,6 +5,9 @@ import os
 import queue
 import subprocess
 import threading
+import pathlib
+import tarfile
+
 
 addrssQ = queue.Queue(maxsize= 4)
 socksQ = queue.Queue(maxsize= 4)
@@ -36,31 +39,49 @@ def create_sock(IP:str, port:int, conn:int):
 
 def process_req(buf, tmp_folder, tmp_file):
     try:
-        os.mkdir(tmp_folder); os.chdir(tmp_folder)
+        os.mkdir(tmp_folder)
 
     except FileExistsError:
-        os.chdir(tmp_folder)
 
-    while socksQ.not_empty:
-        sock = socksQ.get()
-        mssg = 'Server ready to receive file...'.encode('utf-8')
+        while socksQ.not_empty:
 
-        sock.send(mssg)
-        raw_byte = sock.recv(buf)
+            sock = socksQ.get()
+            mssg = 'Server ready to receive file...'.encode('utf-8')
 
-        file = __import__('io').BytesIO(raw_byte);
-        with open(tmp_file, 'wb') as f:
-            if f.writable():
-                f.write(file.read())
+            sock.send(mssg)
+            raw_byte = sock.recv(buf)
 
-                subprocess.Popen(['black', tmp_file])
+            file = __import__('io').BytesIO(raw_byte);
 
-        
-        with open(tmp_file, 'rb') as f:
-            if f.readable():
+            path = pathlib.Path(os.getcwd()).joinpath(tmp_folder) 
+            tmp_file_path = path.joinpath(tmp_file)
 
-                sock.send(f.read())
-                sock.close()
+            with open(tmp_file_path, 'wb') as f:
+                if f.writable():
+                    f.write(file.read())
+
+                    err_path = path.joinpath('err.log'); out_path = path.joinpath('out.log')
+                    err = open(err_path); out = open(out_path)
+
+                    subprocess.Popen(['black', tmp_file_path], stderr= err, stdout= out); subprocess.Popen(['pylint', tmp_file_path], stderr= err, stdout= out)
+                    if err.closed and out.closed:
+                        ...
+                    else:
+                        err.close(); out.close()
+
+            try:
+                tarfile.open('package.tar', 'x').add(path)
+
+            except FileExistsError:
+                print('Tar file already exists')
+
+            tar_path = pathlib.Path(os.getcwd()).joinpath('package.tar') 
+
+            with open(tar_path, 'rb') as f:
+                if f.readable():
+
+                    sock.send(f.read())
+                    sock.close()
 
 
 
@@ -70,7 +91,7 @@ except IndexError:
    PP = 9696
 
 create_sock_args = ['127.0.0.1', PP, 4]
-process_req_args = [2048, 'temp', 'tempfile.py']
+process_req_args = [2048, 'package-folder', 're-factored.py']
 
 
 th1 = threading.Thread(target= create_sock, args= create_sock_args)
