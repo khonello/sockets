@@ -6,7 +6,7 @@ import queue
 import subprocess
 import threading
 import pathlib
-import tarfile
+import zipfile
 
 
 addrssQ = queue.Queue(maxsize= 4)
@@ -60,7 +60,7 @@ def process_req(buf, tmp_folder, tmp_file):
                 if f.writable():
                     f.write(file.read())
 
-                    err_path = path.joinpath('err.log'); out_path = path.joinpath('out.log')
+                    err_path = path.joinpath('err.md'); out_path = path.joinpath('out.md')
                     err = open(err_path, 'w+'); out = open(out_path, 'w+')
 
                     subprocess.Popen(['black', tmp_file_path], stderr= err, stdout= out); subprocess.Popen(['pylint', tmp_file_path], stderr= err, stdout= out)
@@ -69,21 +69,45 @@ def process_req(buf, tmp_folder, tmp_file):
                     else:
                         err.close(); out.close()
 
+            # Three zipfiles to send
+
+            zips_path = [tmp_file_path, err_path, out_path]
+
             try:
-                tarfile.open('package.tar', 'x').add(path)
+
+                #create zipfiles if not existed
+                x_zip_files = [zipfile.ZipFile(f, 'x') for f in zips_path]
+                i = 0
+
+                for ff in x_zip_files:
+                    ff.write(zips_path[i], f'zip_{i}')
+
+                    with open(x_zip_files, 'rb') as f:
+
+                        sock.send(f.read())
+
+                    i+=1
+
+                    __import__('time').sleep(2)
 
             except FileExistsError:
 
-                print('Tar file already exists')
+                #replace zipfiles if exists
+                c_zip_files = [zipfile.ZipFile(f, 'c') for f in zips_path]
+                i = 0
 
+                for ff in c_zip_files:
+                    ff.write(zips_path[i], f'zip_{i}')
 
-            tar_path = pathlib.Path(os.getcwd()).joinpath('package.tar') 
+                    with open(c_zip_files[i], 'rb') as f:
+                        
+                        sock.send(f.read())
+                    i+=1
 
-            with open(tar_path, 'rb') as f:
-                if f.readable():
+                    __import__('time').sleep(2)
 
-                    sock.send(f.read())
-                    sock.close()
+             
+            sock.close()
 
 
 
@@ -93,10 +117,10 @@ except IndexError:
    PP = 9696
 
 create_sock_args = ['127.0.0.1', PP, 4]
-process_req_args = [2048, 'package-folder', 're-factored.py']
+process_req_args = [2048, 'temp', 're-factored.py']
 
 
-th1 = threading.Thread(target= create_sock, args= create_sock_args, daemon= True)
+th1 = threading.Thread(target= create_sock, args= create_sock_args)
 th2 = threading.Thread(target= process_req, args= process_req_args)
 
 

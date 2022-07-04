@@ -19,14 +19,21 @@ def conn(*args, **kwargs):
         if script[-2:] == 'py':
             with open(script, 'rb') as f:
                 sock.send(f.read())
-        
-            with open(file_name, 'wb') as f:
-                if f.writable():
-                    raw_byte = sock.recv(buf * 4)
 
-                    file = __import__('io').BytesIO(raw_byte)
-                    f.write(file.read())
 
+            for i in range(0,2):
+                with open(f'{file_name}_{i}', 'wb') as f:
+                    if f.writable():
+                    
+                        raw_byte = sock.recv(buf)
+
+                        file = __import__('io').BytesIO(raw_byte)
+                        f.write(file.read())
+
+                        __import__('time').sleep(2)
+
+
+            print('Receiving files...')
 
         else:
             print('The file type choosen is not supported')
@@ -42,5 +49,5 @@ try:
 except IndexError:
    PP = 9696
 
-IP = '127.0.0.1'; BUF = 2048; FILE = 'package.tar'
+IP = '127.0.0.1'; BUF = 2048; FILE = 'zip'
 conn(IP, PP, BUF, FILE)
