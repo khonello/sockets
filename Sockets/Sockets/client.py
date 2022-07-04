@@ -1,6 +1,7 @@
 import sys
 import socket
 import os
+import pathlib
 
 def conn(*args, **kwargs):
 
@@ -22,17 +23,10 @@ def conn(*args, **kwargs):
         
             with open(file_name, 'wb') as f:
                 if f.writable():
-                    raw_byte = sock.recv(buf)
+                    raw_byte = sock.recv(buf * 4)
+
                     file = __import__('io').BytesIO(raw_byte)
-
-                    try:
-
-                        os.mkdir('refactored'); os.chdir('refactored')
-                    except FileExistsError:
-
-                        os.chdir('refactored')
                     f.write(file.read())
-
 
 
         else:
@@ -49,5 +43,5 @@ try:
 except IndexError:
    PP = 9696
 
-IP = '127.0.0.1'; BUF = 2048; FILE = 'refactor.py'
+IP = '127.0.0.1'; BUF = 2048; FILE = 'package.tar'
 conn(IP, PP, BUF, FILE)
