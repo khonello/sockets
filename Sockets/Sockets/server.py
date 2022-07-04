@@ -16,16 +16,21 @@ def create_sock(IP:str, port:int, conn:int):
     sock.bind((IP, port))
     sock.listen(conn)
 
+
     while True:
         clientSock, addr = sock.accept()
-        if addrssQ.not_full and socksQ.not_full:
 
-            addrssQ.put(addr)
-            socksQ.put(clientSock)
-        else:
-            mssg = 'There is too much traffic, try again later.'.encode('utf-8', 'ignore')
-            clientSock.send(mssg)
-            clientSock.close()
+        if clientSock:
+
+            print(f'Connection from IP {addr[0]} on port {addr[1]}.')
+            if addrssQ.not_full and socksQ.not_full:
+
+                addrssQ.put(addr)
+                socksQ.put(clientSock)
+            else:
+                mssg = 'There is too much traffic, try again later.'.encode('utf-8', 'ignore')
+                clientSock.send(mssg)
+                clientSock.close()
 
 
 
@@ -48,12 +53,15 @@ def process_req(buf, tmp_folder, tmp_file):
             if f.writable():
                 f.write(file.read())
 
-        subprocess.Popen(['black', tmp_file])
+                subprocess.Popen(['black', tmp_file])
+
+        
         with open(tmp_file, 'rb') as f:
             if f.readable():
 
                 sock.send(f.read())
                 sock.close()
+
 
 
 try:
@@ -62,7 +70,7 @@ except IndexError:
    PP = 9696
 
 create_sock_args = ['127.0.0.1', PP, 4]
-process_req_args = [2048, 'temp', 'py_script.py']
+process_req_args = [2048, 'temp', 'tempfile.py']
 
 
 th1 = threading.Thread(target= create_sock, args= create_sock_args)
@@ -70,4 +78,5 @@ th2 = threading.Thread(target= process_req, args= process_req_args)
 
 th1.start()
 th2.start()
+
 

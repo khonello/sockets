@@ -2,7 +2,6 @@ import sys
 import socket
 import os
 
-
 def conn(*args, **kwargs):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,18 +11,36 @@ def conn(*args, **kwargs):
 
         mssg = sock.recv(1024).decode('utf-8')
         print(mssg)
-        os.walk(os.getcwd(), topdown= False)
+
+        dirs = os.listdir(os.getcwd())
+        for x in dirs:  print(x)
 
         script = input('Provide filename of python script to use. ')
-        with open(script, 'rb') as f:
-            sock.send(f.read())
+        if script[-2:] == 'py':
+            with open(script, 'rb') as f:
+                sock.send(f.read())
         
-        with open(file_name, 'wb') as f:
-            if f.writable():
-                raw_byte = sock.recv(buf)
-                file = __import__('io').BytesIO(raw_byte)
+            with open(file_name, 'wb') as f:
+                if f.writable():
+                    raw_byte = sock.recv(buf)
+                    file = __import__('io').BytesIO(raw_byte)
 
-                f.write(file.read())
+                    try:
+
+                        os.mkdir('refactored'); os.chdir('refactored')
+                    except FileExistsError:
+
+                        os.chdir('refactored')
+                    f.write(file.read())
+
+
+
+        else:
+            print('The file type choosen is not supported')
+            print('Terminating...')
+
+            sock.close()
+
 
     process_req(args[2], args[3])
 
