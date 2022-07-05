@@ -76,12 +76,11 @@ def process_req(buf, tmp_folder, tmp_file):
             try:
 
                 #create zipfiles if not existed
-                x_zip_files = [zipfile.ZipFile(f, 'x') for f in zips_path]
+                x_zip_files = [zipfile.ZipFile(f'{f}.zip', 'x').write(f) for f in zips_path]
                 i = 0
 
                 for ff in x_zip_files:
-                    ff.write(zips_path[i], f'zip_{i}')
-
+                    
                     with open(x_zip_files, 'rb') as f:
 
                         sock.send(f.read())
@@ -93,11 +92,10 @@ def process_req(buf, tmp_folder, tmp_file):
             except FileExistsError:
 
                 #replace zipfiles if exists
-                c_zip_files = [zipfile.ZipFile(f, 'c') for f in zips_path]
+                c_zip_files = [zipfile.ZipFile(f'{f}.zip', 'c').write(f) for f in zips_path]
                 i = 0
 
                 for ff in c_zip_files:
-                    ff.write(zips_path[i], f'zip_{i}')
 
                     with open(c_zip_files[i], 'rb') as f:
                         
