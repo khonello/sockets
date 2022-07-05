@@ -12,6 +12,13 @@ import zipfile
 addrssQ = queue.Queue(maxsize= 4)
 socksQ = queue.Queue(maxsize= 4)
 
+def str_to_list(arg):
+
+    lst  = []
+    lst[:0] = arg
+
+    return lst
+
 # Create function to listen to connections
 def create_sock(IP:str, port:int, conn:int):
 
@@ -39,10 +46,8 @@ def create_sock(IP:str, port:int, conn:int):
 
 def process_req(buf, tmp_folder, tmp_file):
     try:
-
         os.mkdir(tmp_folder)
     except FileExistsError:
-
         while socksQ.not_empty:
 
             sock = socksQ.get()
@@ -69,14 +74,18 @@ def process_req(buf, tmp_folder, tmp_file):
                     else:
                         err.close(); out.close()
 
-            # Three zipfiles to send
+            #three zipfiles to send
 
             zips_path = [tmp_file_path, err_path, out_path]
 
+            #create zipfiles if not existed
             try:
+                new_zips_path = ["".join(str_to_list(str(f))[:-2]) for f in zips_path]
+                x_zip_files = [zipfile.ZipFile(f'{f}zip', 'w') for f in new_zips_path]
 
-                #create zipfiles if not existed
-                x_zip_files = [zipfile.ZipFile(f'{str(f).split()[:-2]}zip', 'x').write(f) for f in zips_path]
+                for f in zips_path:
+                    [z.write(f) for z in x_zip_files]
+
                 i = 0
 
                 for _ in x_zip_files:
@@ -88,10 +97,18 @@ def process_req(buf, tmp_folder, tmp_file):
 
                     __import__('time').sleep(2)
 
+            #replace zipfiles if exists
             except FileExistsError:
+                for r in new_zips_path:
+                    os.remove(f'{r}zip')
 
-                #replace zipfiles if exists
-                c_zip_files = [zipfile.ZipFile(f'{str(f).split()[:-2]}zip', 'c').write(f) for f in zips_path]
+                new_zips_path = ["".join(str_to_list(str(f))[:-2]) for f in zips_path]
+                c_zip_files = [zipfile.ZipFile(f'{f}zip', 'w') for f in new_zips_path]
+
+
+                for f in zips_path:
+                    [z.write(f) for z in c_zip_files]
+
                 i = 0
 
                 for _ in c_zip_files:

@@ -12,7 +12,7 @@ def conn(*args, **kwargs):
         mssg = sock.recv(1024).decode('utf-8')
         print(mssg)
 
-        dirs = os.listdir(os.getcwd())
+        dirs = os.listdir(os.curdir)
         for x in dirs:  print(x)
 
         script = input('Provide filename of python script to use. ')
