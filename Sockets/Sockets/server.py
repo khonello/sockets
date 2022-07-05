@@ -40,8 +40,8 @@ def create_sock(IP:str, port:int, conn:int):
 def process_req(buf, tmp_folder, tmp_file):
     try:
 
-        os.makedirs(tmp_folder)
-    except OSError:
+        os.mkdir(tmp_folder)
+    except FileExistsError:
 
         while socksQ.not_empty:
 
@@ -53,7 +53,7 @@ def process_req(buf, tmp_folder, tmp_file):
 
             file = __import__('io').BytesIO(raw_byte);
 
-            path = pathlib.Path(os.getcwd()).joinpath(tmp_folder) 
+            path = pathlib.Path(os.curdir).joinpath(tmp_folder) 
             tmp_file_path = path.joinpath(tmp_file)
 
             with open(tmp_file_path, 'wb') as f:
@@ -76,7 +76,7 @@ def process_req(buf, tmp_folder, tmp_file):
             try:
 
                 #create zipfiles if not existed
-                x_zip_files = [zipfile.ZipFile(f'{f}.zip', 'x').write(f) for f in zips_path]
+                x_zip_files = [zipfile.ZipFile(f'{str(f).split()[:-2]}zip', 'x').write(f) for f in zips_path]
                 i = 0
 
                 for _ in x_zip_files:
@@ -91,7 +91,7 @@ def process_req(buf, tmp_folder, tmp_file):
             except FileExistsError:
 
                 #replace zipfiles if exists
-                c_zip_files = [zipfile.ZipFile(f'{f}.zip', 'c').write(f) for f in zips_path]
+                c_zip_files = [zipfile.ZipFile(f'{str(f).split()[:-2]}zip', 'c').write(f) for f in zips_path]
                 i = 0
 
                 for _ in c_zip_files:
