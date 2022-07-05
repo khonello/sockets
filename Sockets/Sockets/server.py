@@ -61,7 +61,7 @@ def process_req(buf, tmp_folder, tmp_file):
                     f.write(file.read())
 
                     err_path = path.joinpath('err.md'); out_path = path.joinpath('out.md')
-                    err = open(err_path, 'w+'); out = open(out_path, 'w+')
+                    err = open(err_path, 'w'); out = open(out_path, 'w')
 
                     subprocess.Popen(['black', tmp_file_path], stderr= err, stdout= out); subprocess.Popen(['pylint', tmp_file_path], stderr= err, stdout= out)
                     if err.closed and out.closed:
@@ -79,12 +79,11 @@ def process_req(buf, tmp_folder, tmp_file):
                 x_zip_files = [zipfile.ZipFile(f'{f}.zip', 'x').write(f) for f in zips_path]
                 i = 0
 
-                for ff in x_zip_files:
+                for _ in x_zip_files:
                     
-                    with open(x_zip_files, 'rb') as f:
+                    with open(x_zip_files[i], 'rb') as f:
 
                         sock.send(f.read())
-
                     i+=1
 
                     __import__('time').sleep(2)
@@ -95,7 +94,7 @@ def process_req(buf, tmp_folder, tmp_file):
                 c_zip_files = [zipfile.ZipFile(f'{f}.zip', 'c').write(f) for f in zips_path]
                 i = 0
 
-                for ff in c_zip_files:
+                for _ in c_zip_files:
 
                     with open(c_zip_files[i], 'rb') as f:
                         
