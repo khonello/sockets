@@ -74,54 +74,38 @@ def process_req(buf, tmp_folder, tmp_file):
                     else:
                         err.close(); out.close()
 
-            #three zipfiles to send
 
             zips_path = [tmp_file_path, err_path, out_path]
+            archive_path = path.joinpath('password-is-khonello.zip')
 
             #create zipfiles if not existed
             try:
-                new_zips_path = ["".join(str_to_list(str(f))[:-2]) for f in zips_path]
-                x_zip_files = [zipfile.ZipFile(f'{f}zip', 'w') for f in new_zips_path]
+                x_zip_file = zipfile.ZipFile(archive_path, 'w')
 
-                x=0
+                for e in zips_path:
 
-                for f in zips_path:
-                    [z.write(f) for z in x_zip_files]
+                   x_zip_file.write(e)
+                x_zip_file.setpassword(b'khonello')
 
-                i = 0
+                with open(archive_path, 'rb') as f:
 
-                for _ in x_zip_files:
+                    sock.send(f.read())
 
-                    with open(f'{new_zips_path[i]}zip', 'rb') as f:
-
-                        sock.send(f.read())
-                    i+=1
-
-                    __import__('time').sleep(2)
 
             #replace zipfiles if exists
             except FileExistsError:
-                for r in new_zips_path:
-                    os.remove(f'{r}zip')
+                os.remove(archive_path)
 
-                new_zips_path = ["".join(str_to_list(str(f))[:-2]) for f in zips_path]
-                c_zip_files = [zipfile.ZipFile(f'{f}zip', 'w') for f in new_zips_path]
+                c_zip_file = zipfile.ZipFile(archive_path, 'w')
 
+                for e in zips_path:
 
-                for f in zips_path:
-                    [z.write(f) for z in c_zip_files]
+                   c_zip_file.write(e)
+                c_zip_file.setpassword(b'khonello')
 
-                i = 0
+                with open(archive_path, 'rb') as f:
 
-                for _ in c_zip_files:
-
-                    with open(f'{new_zips_path[i]}zip', 'rb') as f:
-                        
-                        sock.send(f.read())
-                    i+=1
-
-                    __import__('time').sleep(2)
-
+                    sock.send(f.read())
              
             sock.close()
 
@@ -133,7 +117,7 @@ except IndexError:
    PP = 9696
 
 create_sock_args = ['127.0.0.1', PP, 4]
-process_req_args = [2048, 'temp', 're-factored.py']
+process_req_args = [4096, 'temp', 're-factored.py']
 
 
 th1 = threading.Thread(target= create_sock, args= create_sock_args)

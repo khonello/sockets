@@ -20,18 +20,12 @@ def conn(*args, **kwargs):
             with open(script, 'rb') as f:
                 sock.send(f.read())
 
+            raw_byte = sock.recv(buf)
+            file = __import__('io').BytesIO(raw_byte)
 
-            for i in range(0,2):
-                with open(f'{file_name}_{i}_.zip', 'wb') as f:
-                    if f.writable():
-                    
-                        raw_byte = sock.recv(buf)
-
-                        file = __import__('io').BytesIO(raw_byte)
-                        f.write(file.read())
-
-                        __import__('time').sleep(2)
-
+            with open(file_name, 'wb') as z:
+                z.write(file.read())
+        
 
             print('Receiving files...')
 
@@ -49,5 +43,5 @@ try:
 except IndexError:
    PP = 9696
 
-IP = '127.0.0.1'; BUF = 2048; FILE = 'file'
+IP = '127.0.0.1'; BUF = 4096; FILE = 'password-is-khonello.zip'
 conn(IP, PP, BUF, FILE)
