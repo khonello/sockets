@@ -1,4 +1,3 @@
-
 import socket
 import sys
 import os
@@ -45,11 +44,12 @@ def create_sock(IP:str, port:int, conn:int):
 
 
 def process_req(buf, tmp_folder, tmp_file):
+
     try:
         os.mkdir(tmp_folder)
-    except FileExistsError:
-        while socksQ.not_empty:
-
+    except:
+        ...
+    finally:
             sock = socksQ.get()
             mssg = 'Server ready to receive file...'.encode('utf-8')
 
@@ -83,14 +83,16 @@ def process_req(buf, tmp_folder, tmp_file):
                 new_zips_path = ["".join(str_to_list(str(f))[:-2]) for f in zips_path]
                 x_zip_files = [zipfile.ZipFile(f'{f}zip', 'w') for f in new_zips_path]
 
+                x=0
+
                 for f in zips_path:
                     [z.write(f) for z in x_zip_files]
 
                 i = 0
 
                 for _ in x_zip_files:
-                    
-                    with open(x_zip_files[i], 'rb') as f:
+
+                    with open(f'{new_zips_path[i]}zip', 'rb') as f:
 
                         sock.send(f.read())
                     i+=1
@@ -113,7 +115,7 @@ def process_req(buf, tmp_folder, tmp_file):
 
                 for _ in c_zip_files:
 
-                    with open(c_zip_files[i], 'rb') as f:
+                    with open(f'{new_zips_path[i]}zip', 'rb') as f:
                         
                         sock.send(f.read())
                     i+=1

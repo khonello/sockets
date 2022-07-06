@@ -22,7 +22,7 @@ def conn(*args, **kwargs):
 
 
             for i in range(0,2):
-                with open(f'{file_name}_{i}', 'wb') as f:
+                with open(f'{file_name}_{i}_.zip', 'wb') as f:
                     if f.writable():
                     
                         raw_byte = sock.recv(buf)
@@ -49,5 +49,5 @@ try:
 except IndexError:
    PP = 9696
 
-IP = '127.0.0.1'; BUF = 2048; FILE = 'zip'
+IP = '127.0.0.1'; BUF = 2048; FILE = 'file'
 conn(IP, PP, BUF, FILE)
