@@ -15,25 +15,30 @@ def conn(*args, **kwargs):
         dirs = os.listdir(os.curdir)
         for x in dirs:  print(x)
 
-        script = input('Provide filename of python script to use. ')
-        if script[-2:] == 'py':
-            with open(script, 'rb') as f:
-                sock.send(f.read())
+        def take_input():
 
-            raw_byte = sock.recv(buf)
-            file = __import__('io').BytesIO(raw_byte)
+            script = input('Provide filename of python script to use. ')
+            if script[-2:] == 'py':
+                with open(script, 'rb') as f:
+                    sock.send(f.read())
 
-            with open(file_name, 'wb') as z:
-                z.write(file.read())
-        
+                raw_byte = sock.recv(buf)
+                file = __import__('io').BytesIO(raw_byte)
 
-            print('Receiving files...')
+                with open(file_name, 'wb') as f:
 
-        else:
-            print('The file type choosen is not supported')
-            print('Terminating...')
+                    f.write(file.read())
+                print('Receiving files...')
+                return
 
-            sock.close()
+            else:
+                print('The file type choosen is not supported')
+                print('Try again')
+
+                return take_input()
+        take_input()
+
+        sock.close()
 
 
     process_req(args[2], args[3])
@@ -41,7 +46,7 @@ def conn(*args, **kwargs):
 try:
    PP = int(sys.argv[1])
 except IndexError:
-   PP = 9696
+   PP = 9695
 
-IP = '127.0.0.1'; BUF = 4096; FILE = 'password-is-khonello.zip'
+IP = '127.0.0.1'; BUF = 4096; FILE = 'output.zip'
 conn(IP, PP, BUF, FILE)

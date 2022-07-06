@@ -5,7 +5,7 @@ import queue
 import subprocess
 import threading
 import pathlib
-import zipfile
+import shutil
 
 
 addrssQ = queue.Queue(maxsize= 4)
@@ -18,6 +18,7 @@ def str_to_list(arg):
 
     return lst
 
+
 # Create function to listen to connections
 def create_sock(IP:str, port:int, conn:int):
 
@@ -25,7 +26,7 @@ def create_sock(IP:str, port:int, conn:int):
     sock.bind((IP, port))
     sock.listen(conn)
 
-
+    print('Server started successfully')
     while True:
         clientSock, addr = sock.accept()
 
@@ -51,7 +52,7 @@ def process_req(buf, tmp_folder, tmp_file):
         ...
     finally:
             sock = socksQ.get()
-            mssg = 'Server ready to receive file...'.encode('utf-8')
+            mssg = 'Ready to receive file...'.encode('utf-8')
 
             sock.send(mssg)
             raw_byte = sock.recv(buf)
@@ -65,7 +66,7 @@ def process_req(buf, tmp_folder, tmp_file):
                 if f.writable():
                     f.write(file.read())
 
-                    err_path = path.joinpath('err.md'); out_path = path.joinpath('out.md')
+                    err_path = path.joinpath('black.md'); out_path = path.joinpath('pylint.md')
                     err = open(err_path, 'w'); out = open(out_path, 'w')
 
                     subprocess.Popen(['black', tmp_file_path], stderr= err, stdout= out); subprocess.Popen(['pylint', tmp_file_path], stderr= err, stdout= out)
@@ -74,47 +75,32 @@ def process_req(buf, tmp_folder, tmp_file):
                     else:
                         err.close(); out.close()
 
+            archive_path = pathlib.Path(os.curdir).joinpath('xh3ted73jkw8.zip')
 
-            zips_path = [tmp_file_path, err_path, out_path]
-            archive_path = path.joinpath('password-is-khonello.zip')
+
+            __import__('time').sleep(2.0)
+            def for_try_block():
+                shutil.make_archive('xh3ted73jkw8', 'zip', path)
+                with open(archive_path, 'rb') as f:
+
+                    sock.send(f.read())
+                sock.close()
+                os.remove(archive_path)
 
             #create zipfiles if not existed
             try:
-                x_zip_file = zipfile.ZipFile(archive_path, 'w')
+                for_try_block()
 
-                for e in zips_path:
-
-                   x_zip_file.write(e)
-                x_zip_file.setpassword(b'khonello')
-
-                with open(archive_path, 'rb') as f:
-
-                    sock.send(f.read())
-
-
-            #replace zipfiles if exists
             except FileExistsError:
+
                 os.remove(archive_path)
-
-                c_zip_file = zipfile.ZipFile(archive_path, 'w')
-
-                for e in zips_path:
-
-                   c_zip_file.write(e)
-                c_zip_file.setpassword(b'khonello')
-
-                with open(archive_path, 'rb') as f:
-
-                    sock.send(f.read())
-             
-            sock.close()
-
+                for_try_block()
 
 
 try:
    PP = sys.argv[1]
 except IndexError:
-   PP = 9696
+   PP = 9695
 
 create_sock_args = ['127.0.0.1', PP, 4]
 process_req_args = [4096, 'temp', 're-factored.py']
