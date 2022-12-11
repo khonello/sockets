@@ -69,7 +69,7 @@ def process_req(buf, tmp_folder, tmp_file):
                     err_path = path.joinpath('black.md'); out_path = path.joinpath('pylint.md')
                     err = open(err_path, 'w'); out = open(out_path, 'w')
 
-                    subprocess.Popen(['black', tmp_file_path], stderr= err, stdout= out); subprocess.Popen(['pylint', tmp_file_path], stderr= err, stdout= out)
+                    subprocess.call(['black', tmp_file_path], stderr= err, stdout= out); subprocess.call(['pylint', tmp_file_path], stderr= err, stdout= out)
                     if err.closed and out.closed:
                         ...
                     else:
@@ -108,7 +108,6 @@ process_req_args = [4096, 'temp', 're-factored.py']
 
 th1 = threading.Thread(target= create_sock, args= create_sock_args)
 th2 = threading.Thread(target= process_req, args= process_req_args)
-
 
 th1.start()
 th2.start()
