@@ -6,6 +6,7 @@ import subprocess
 import threading
 import pathlib
 import shutil
+import tempfile
 
 
 addrssQ = queue.Queue(maxsize= 4)
@@ -26,13 +27,13 @@ def create_sock(IP:str, port:int, conn:int):
     sock.bind((IP, port))
     sock.listen(conn)
 
-    print('Server started successfully')
+    print('server started successfully')
     while True:
         clientSock, addr = sock.accept()
 
         if clientSock:
 
-            print(f'Connection from IP {addr[0]} on port {addr[1]}.')
+            print(f'connection from IP {addr[0]} on PORT {addr[1]}.')
             if addrssQ.not_full and socksQ.not_full:
 
                 addrssQ.put(addr)
@@ -52,11 +53,11 @@ def process_req(buf, tmp_folder, tmp_file):
         ...
     finally:
             sock = socksQ.get(block= True, timeout= None)
-            mssg = 'Ready to receive file...'.encode('utf-8')
+            mssg = 'ready to receive file...'.encode('utf-8')
 
             sock.send(mssg)
             raw_byte = sock.recv(buf)
-            print('File has been received')
+            print('receiving file...')
 
             file = __import__('io').BytesIO(raw_byte);
 
@@ -76,15 +77,17 @@ def process_req(buf, tmp_folder, tmp_file):
                     else:
                         err.close(); out.close()
 
-            archive_path = pathlib.Path(os.curdir).joinpath('xh3ted73jkw8.zip')
+            tmp_nam = os.path.basename(tempfile.mktemp())
+            archive_path = pathlib.Path(os.curdir).joinpath(f'{tmp_nam}.zip')
 
             __import__('time').sleep(2.0)
             def for_try_block():
-                shutil.make_archive('xh3ted73jkw8', 'zip', path)
+    
+                shutil.make_archive(tmp_nam, 'zip', path)
                 with open(archive_path, 'rb') as f:
 
                     sock.send(f.read())
-                    print('Zipfile has been sent')
+                    print('new file has been sent')
                 sock.close()
 
                 os.remove(archive_path)
