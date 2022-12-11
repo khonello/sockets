@@ -51,11 +51,12 @@ def process_req(buf, tmp_folder, tmp_file):
     except:
         ...
     finally:
-            sock = socksQ.get()
+            sock = socksQ.get(block= True, timeout= None)
             mssg = 'Ready to receive file...'.encode('utf-8')
 
             sock.send(mssg)
             raw_byte = sock.recv(buf)
+            print('File has been received')
 
             file = __import__('io').BytesIO(raw_byte);
 
@@ -83,6 +84,7 @@ def process_req(buf, tmp_folder, tmp_file):
                 with open(archive_path, 'rb') as f:
 
                     sock.send(f.read())
+                    print('Zipfile has been sent')
                 sock.close()
 
                 os.remove(archive_path)
