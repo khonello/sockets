@@ -7,7 +7,7 @@ import threading
 import pathlib
 import shutil
 import tempfile
-
+import io
 
 addrssQ = queue.Queue(maxsize= 4)
 socksQ = queue.Queue(maxsize= 4)
@@ -59,23 +59,25 @@ def process_req(buf, tmp_folder, tmp_file):
             raw_byte = sock.recv(buf)
             print('receiving file...')
 
-            file = __import__('io').BytesIO(raw_byte);
+            file = __import__('io').BytesIO(raw_byte)
 
             path = pathlib.Path(os.curdir).joinpath(tmp_folder) 
-            tmp_file_path = path.joinpath(tmp_file)
+            tmp_file_path = path.joinpath(tmp_file).absolute()
+
+            # with open(tmp_file, 'w') as txt:
+            #     txt.write(file.read().decode().strip())
 
             with open(tmp_file_path, 'wb') as f:
-                if f.writable():
+
+                if f.writable() and file.readable():
                     f.write(file.read())
 
-                    err_path = path.joinpath('black.md'); out_path = path.joinpath('pylint.md')
-                    err = open(err_path, 'w'); out = open(out_path, 'w')
-
-                    subprocess.call(['black', tmp_file_path], stderr= err, stdout= out); subprocess.call(['pylint', tmp_file_path], stderr= err, stdout= out)
-                    if err.closed and out.closed:
-                        ...
-                    else:
-                        err.close(); out.close()
+                    err_path = path.joinpath('black.md').absolute(); out_path = path.joinpath('pylint.md').absolute()
+                    err = open(err_path, 'a'); out = open(out_path, 'a')
+                    
+                    subprocess.call(['black', '--target-version', 'py38', tmp_file_path], stderr= err, stdout= out); subprocess.call(['pylint', '--suggestion-mode=y', '--output-format=colorized', '--reports=y', tmp_file_path], stderr= err, stdout= out)
+                    if not err.closed and not out.closed:
+                        err.close(); out.close() 
 
             tmp_nam = os.path.basename(tempfile.mktemp())
             archive_path = pathlib.Path(os.curdir).joinpath(f'{tmp_nam}.zip')
