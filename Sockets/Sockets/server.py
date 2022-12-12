@@ -72,10 +72,18 @@ def process_req(buf, tmp_folder, tmp_file):
                 if f.writable() and file.readable():
                     f.write(file.read())
 
-                    err_path = path.joinpath('black.md').absolute(); out_path = path.joinpath('pylint.md').absolute()
-                    err = open(err_path, 'a'); out = open(out_path, 'a')
+                    err_path = path.joinpath('pylint_err.txt').absolute(); out_path = path.joinpath('pylint_out.txt').absolute()
+                    err = open(err_path, 'w'); out = open(out_path, 'w')
                     
-                    subprocess.call(['black', '--target-version', 'py38', tmp_file_path], stderr= err, stdout= out); subprocess.call(['pylint', '--suggestion-mode=y', '--output-format=colorized', '--reports=y', tmp_file_path], stderr= err, stdout= out)
+                    black = subprocess.Popen(['black', '--target-version', 'py38', tmp_file_path], stderr= subprocess.PIPE, stdout= subprocess.PIPE)                                            # output not needed  
+                    _, __ = black.communicate()
+
+                    pylint = subprocess.Popen(['pylint', '--suggestion-mode=y', '--output-format=colorized', '--reports=y', tmp_file_path], stderr= subprocess.PIPE, stdout= subprocess.PIPE)   # output very important
+                    stdout, stderr = pylint.communicate()  
+
+                    if out.writable() and err.writable():
+                        out.write(stdout.decode()); err.write(stderr.decode())
+
                     if not err.closed and not out.closed:
                         err.close(); out.close() 
 
