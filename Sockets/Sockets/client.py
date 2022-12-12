@@ -17,7 +17,7 @@ def conn(*args, **kwargs):
 
         def take_input():
 
-            script = input('Provide filename of python script to use. ')
+            script = input('provide filename of python script to use. ')
             if script[-2:] == 'py':
                 with open(script, 'rb') as f:
                     sock.send(f.read())
@@ -28,12 +28,12 @@ def conn(*args, **kwargs):
                 with open(file_name, 'wb') as f:
 
                     f.write(file.read())
-                print('Receiving files...')
+                print('receiving files...')
                 return
 
             else:
-                print('The file type choosen is not supported')
-                print('Try again')
+                print('the file type choosen is not supported')
+                print('try again')
 
                 return take_input()
         take_input()
