@@ -131,5 +131,3 @@ th2 = threading.Thread(target= process_req, args= process_req_args)
 
 th1.start()
 th2.start()
-
-
