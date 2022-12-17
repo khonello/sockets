@@ -9,7 +9,7 @@ import shutil
 import tempfile
 import psutil
 import datetime
-import time
+import asyncio
 from random import choice
 
 
@@ -36,7 +36,7 @@ def stats():
     users = psutil.users()[0]
     print(f"\ncpu usage {ps}\tcpu frequency {freq.current} [max :: {freq.max}]")
 
-    time.sleep(1.0)
+    asyncio.sleep(1.0)
     print(f"user [{users.name}] terminal [{users.terminal}] host [{users.host}] started [{datetime.datetime.fromtimestamp(users.started).ctime()}]")
 
 # Create function to listen to connections
@@ -68,9 +68,15 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
                         mssg = 'ready to receive file...'.encode('utf-8')
 
                         getsock.send(mssg)
-                        raw_byte = getsock.recv(buf)
-                        print('receiving file...')
+                        async def foo():
+                            global raw_byte
 
+                            raw_byte = getsock.recv(buf)
+                            print('receiving file...')
+
+                        cour_foo = foo()
+                        asyncio.run(cour_foo)
+                        
                         file = __import__('io').BytesIO(raw_byte)
 
                         path = pathlib.Path(os.curdir).joinpath(tmp_folder) 
@@ -117,7 +123,7 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
                                 print('new file has been sent')
                             
                             getsock.close()
-                            time.sleep(1.0)
+                            asyncio.sleep(1.0)
                             os.system('cls')
 
                             os.remove(archive_path)
@@ -138,7 +144,7 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
             clientSock.send(mssg)
             clientSock.close()
 
-            time.sleep(1.0)
+            asyncio.sleep(1.0)
             os.system('cls')
 
 # def process_req(buf, tmp_folder, tmp_file):
