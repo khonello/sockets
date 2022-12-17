@@ -10,6 +10,7 @@ import tempfile
 import psutil
 import datetime
 import asyncio
+import time
 from random import choice
 
 
@@ -23,7 +24,7 @@ socksQ = queue.Queue(maxsize= 4)
 
 #     return lst
 
-def stats():
+async def stats():
 
     fg = choice([str(x) for x in range(1,10)]+[y for y in __import__('string').ascii_uppercase][:6])
 
@@ -36,11 +37,11 @@ def stats():
     users = psutil.users()[0]
     print(f"\ncpu usage {ps}\tcpu frequency {freq.current} [max :: {freq.max}]")
 
-    asyncio.sleep(1.0)
-    print(f"user [{users.name}] terminal [{users.terminal}] host [{users.host}] started [{datetime.datetime.fromtimestamp(users.started).ctime()}]")
+    await asyncio.sleep(1.0)
+    print(f"user [{users.name}] terminal [{users.terminal}] host [{users.host}] started [{datetime.datetime.fromtimestamp(users.started).ctime()}]\n")
 
 # Create function to listen to connections
-def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:str, /):
+async def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:str, /):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((IP, port))
@@ -48,12 +49,22 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
 
     while True:
 
-        stats()
+        await stats()
         clientSock, addr = sock.accept()
        
         if clientSock:
 
-            print(f'\nconnection from IP {addr[0]} on PORT {addr[1]}.')
+            conn = f'connection from IP {addr[0]} on PORT {addr[1]}.'
+
+            async def magic():
+                for c in conn:
+                    print(c, end= '')
+
+                    sys.stdout.flush()
+                    time.sleep(0.01)
+                print('', end= '\n')
+            await magic()
+            
             if addrssQ.not_full and socksQ.not_full:
 
                 addrssQ.put(addr)
@@ -74,8 +85,7 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
                             raw_byte = getsock.recv(buf)
                             print('receiving file...')
 
-                        cour_foo = foo()
-                        asyncio.run(cour_foo)
+                        await foo()
                         
                         file = __import__('io').BytesIO(raw_byte)
 
@@ -113,8 +123,8 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
                         tmp_nam = os.path.basename(tempfile.mktemp())
                         archive_path = pathlib.Path(os.curdir).joinpath(f'{tmp_nam}.zip')
 
-                        __import__('time').sleep(2.0)
-                        def for_try_block():
+                        await asyncio.sleep(2.0)
+                        async def for_try_block():
                 
                             shutil.make_archive(tmp_nam, 'zip', path)
                             with open(archive_path, 'rb') as f:
@@ -123,7 +133,8 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
                                 print('new file has been sent')
                             
                             getsock.close()
-                            asyncio.sleep(1.0)
+
+                            await asyncio.sleep(2.0)
                             os.system('cls')
 
                             os.remove(archive_path)
@@ -131,12 +142,12 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
 
                         #create zipfiles if not existed
                         try:
-                            for_try_block()
+                            await for_try_block()
 
                         except FileExistsError:
 
                             os.remove(archive_path)
-                            for_try_block()
+                            await for_try_block()
 
         else:
             mssg = 'There is too much traffic, try again later.'.encode('utf-8', 'ignore')
@@ -144,12 +155,8 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
             clientSock.send(mssg)
             clientSock.close()
 
-            asyncio.sleep(1.0)
+            await asyncio.sleep(1.0)
             os.system('cls')
-
-# def process_req(buf, tmp_folder, tmp_file):
-
-#     ...
 
 try:
    PP = sys.argv[1]
@@ -157,7 +164,4 @@ except IndexError:
    PP = 9695
 
 create_sock_args = ['127.0.0.1', PP, 4, 4096, 'temp', 're-factored.py']
-
-th1 = threading.Thread(target= create_sock, args= create_sock_args)
-
-th1.start()
+asyncio.run((lambda arg: create_sock(*arg))(create_sock_args))
