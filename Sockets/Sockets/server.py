@@ -7,6 +7,10 @@ import threading
 import pathlib
 import shutil
 import tempfile
+import psutil
+import datetime
+import time
+from random import choice
 
 
 addrssQ = queue.Queue(maxsize= 4)
@@ -19,6 +23,21 @@ socksQ = queue.Queue(maxsize= 4)
 
 #     return lst
 
+def stats():
+
+    fg = choice([str(x) for x in range(1,10)]+[y for y in __import__('string').ascii_uppercase][:6])
+
+    os.system(f'color 0{fg}')
+    print('server started successfully')
+
+    ps = psutil.cpu_percent()
+    freq = psutil.cpu_freq()
+
+    users = psutil.users()[0]
+    print(f"\ncpu usage {ps}\tcpu frequency {freq.current} [max :: {freq.max}]")
+
+    time.sleep(1.0)
+    print(f"user [{users.name}] terminal [{users.terminal}] host [{users.host}] started [{datetime.datetime.fromtimestamp(users.started).ctime()}]")
 
 # Create function to listen to connections
 def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:str, /):
@@ -27,13 +46,14 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
     sock.bind((IP, port))
     sock.listen(conn)
 
-    print('server started successfully')
     while True:
-        clientSock, addr = sock.accept()
 
+        stats()
+        clientSock, addr = sock.accept()
+       
         if clientSock:
 
-            print(f'connection from IP {addr[0]} on PORT {addr[1]}.')
+            print(f'\nconnection from IP {addr[0]} on PORT {addr[1]}.')
             if addrssQ.not_full and socksQ.not_full:
 
                 addrssQ.put(addr)
@@ -95,7 +115,10 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
 
                                 getsock.send(f.read())
                                 print('new file has been sent')
+                            
                             getsock.close()
+                            time.sleep(1.0)
+                            os.system('cls')
 
                             os.remove(archive_path)
                             shutil.rmtree(path, ignore_errors= True)
@@ -115,6 +138,9 @@ def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_file:st
             clientSock.send(mssg)
             clientSock.close()
 
+            time.sleep(1.0)
+            os.system('cls')
+
 # def process_req(buf, tmp_folder, tmp_file):
 
 #     ...
@@ -125,6 +151,7 @@ except IndexError:
    PP = 9695
 
 create_sock_args = ['127.0.0.1', PP, 4, 4096, 'temp', 're-factored.py']
+
 th1 = threading.Thread(target= create_sock, args= create_sock_args)
 
 th1.start()
