@@ -11,7 +11,7 @@ def conn(*args, **kwargs):
     def process_req(buf, file_name):
 
         fg = choice([str(x) for x in range(1,10)]+[y for y in __import__('string').ascii_uppercase][:6])
-        os.system(f'color 0{fg}')
+        os.system(f'color 0{fg}'); os.system('title khonello [ client ]')
 
         mssg = sock.recv(1024).decode('utf-8')
         print(mssg)
