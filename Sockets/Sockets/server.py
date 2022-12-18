@@ -95,9 +95,13 @@ async def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_f
                         with open(tmp_file_path, 'wb') as f:
                             fd = f.fileno()
 
+                            # bug prolly here
+
                             if f.writable() and file.readable():
                                 f.write(file.read())
                                 os.fsync(fd)
+
+                                # yhep it here
                                     
                         black = subprocess.Popen(['black', '--target-version', 'py38', tmp_file_path], stderr= subprocess.PIPE, stdout= subprocess.PIPE)                                            # output not needed  
                         _, __ = black.communicate()
