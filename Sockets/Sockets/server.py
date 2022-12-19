@@ -84,7 +84,7 @@ async def create_sock(IP:str, port:int, conn:int, buf:int, tmp_folder:str, tmp_f
                                 shutil.rmtree(os.path.abspath(tmp_folder))
                             finally:
                                     getsock = socksQ.get(block= True, timeout= None)
-                                    mssg = 'ready to receive file...'.encode('utf-8')
+                                    mssg = 'server ready to receive file...'.encode('utf-8')
 
                                     getsock.send(mssg)
                             

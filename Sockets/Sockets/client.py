@@ -9,12 +9,12 @@ def conn(*args, **kwargs):
     sock.connect((args[0], args[1]))
 
     def process_req(buf, file_name):
-
+        
         fg = choice([str(x) for x in range(1,10)]+[y for y in __import__('string').ascii_uppercase][:6])
         os.system(f'color 0{fg}'); os.system('title khonello [ client ]')
 
-        mssg = sock.recv(1024).decode('utf-8')
-        print(mssg)
+        print('client has been started')
+        print(sock.recv(4096).decode('utf-8'))
 
         dirs = os.listdir(os.curdir)
         for x in dirs:  print(x)
