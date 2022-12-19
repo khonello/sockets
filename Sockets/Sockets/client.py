@@ -50,7 +50,7 @@ def conn(*args, **kwargs):
 try:
    PP = int(sys.argv[1])
 except IndexError:
-   PP = 9695
+   PP = 9696
 
 IP = '127.0.0.1'; BUF = 4096; FILE = 'output.zip'
 conn(IP, PP, BUF, FILE)
